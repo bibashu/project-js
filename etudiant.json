@@ -1,0 +1,7 @@
+[
+    { "prenom": "toto", "nom": "diop", "age": 20, "note": 15 },
+    { "prenom": "tata", "nom": "Aidara", "age": 17, "note": 14 },
+    { "prenom": "ousmane", "nom": "seck", "age": 14, "note": 13 },
+    { "prenom": "zidézine", "nom": "zidane", "age": 16, "note": 16 },
+    { "prenom": "ousmane", "nom": "kane", "age": 18, "note": 12 }
+]
