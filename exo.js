@@ -12,7 +12,7 @@ function calculerMoyenne(awa) {
   for (var i = 0; i < awa.length; i++) {
     somme += awa[i].note;
   }
-  console.log(awa.length)
+  console.log(awa.length);
   return somme / awa.length;
 }
 
@@ -40,12 +40,13 @@ function populateTable() {
     noteCell.textContent = etudiant.note;
     row.appendChild(noteCell);
     
-     // Ajouter la ligne au corps du tableau
+
+    // Ajouter la ligne au corps du tableau
   });
 }
 
 // Fonction pour afficher les étudiants pour la page actuelle
-function displayPage(limit, page) {
+function displayPage(limit, page, index) {
   var tableBody = document.getElementById("etudiants-table");
   tableBody.innerHTML = ""; // Effacer le contenu actuel du tableau
 
@@ -70,21 +71,27 @@ function displayPage(limit, page) {
     noteCell.textContent = sauvegarde[i].note;
     row.appendChild(noteCell);
     // creation de bouton
-    var actionbutoon =  document.createElement("td");
-    var modifier = document.createElement('button')
-    modifier.classList.add("buttonModif")
+    var actionbutoon = document.createElement("td");
+    var modifier = document.createElement("button");
+    modifier.classList.add("buttonModif");
     modifier.innerHTML = '<ion-icon name="pencil-outline"></ion-icon>';
-    modifier.addEventListener('click', modifierForm)
-    actionbutoon.appendChild(modifier)
-    row.appendChild(actionbutoon)
+    modifier.addEventListener("click", () => {
+      modifierForm(index)
+  });
+    actionbutoon.appendChild(modifier);
+    row.appendChild(actionbutoon);
     // Bouton supprimer
-   
-    var supprimer = document.createElement('button')
-    supprimer.innerHTML = '<ion-icon name="trash-outline"></ion-icon>';
-    supprimer.classList.add("buttonModif2")
-    actionbutoon.appendChild(supprimer)
 
-    row.appendChild(actionbutoon)
+    var supprimer = document.createElement("button");
+    supprimer.innerHTML = '<ion-icon name="trash-outline"></ion-icon>';
+    supprimer.classList.add("buttonModif2");
+    supprimer.addEventListener('click', () => {
+      supprimerEtudiant(index);
+      
+    });
+    actionbutoon.appendChild(supprimer);
+
+    row.appendChild(actionbutoon);
 
     tableBody.appendChild(row);
 
@@ -125,15 +132,18 @@ function giveTrPerPage() {
 function submitForm(event) {
   event.preventDefault();
 
+  const id = document.getElementById("numero").value;
+  console.log(id);
   const nom = document.getElementById("nom").value;
   const prenom = document.getElementById("prenom").value;
   const age = document.getElementById("age").value;
   const note = document.getElementById("note").value;
 
   alert("Étudiant enregistré avec succès");
-
+  window.location.href = "/"
   // Créer un nouvel étudiant
   const nouvelEtudiant = {
+    id: id,
     nom: nom,
     prenom: prenom,
     age: age,
@@ -164,12 +174,9 @@ document.getElementById("moyenne-generale").textContent =
 // Écouter le clic sur le bouton "Ajouter" pour afficher le modal (Bootstrap 5)
 var boutonAjout = document.getElementById("Ajout");
 boutonAjout.addEventListener("click", function () {
-  var myModal = new bootstrap.Modal(
-    document.getElementById("AjoutModal"),
-    {
-      keyboard: false,
-    }
-  );
+  var myModal = new bootstrap.Modal(document.getElementById("AjoutModal"), {
+    keyboard: false,
+  });
   myModal.show();
 });
 
@@ -177,50 +184,48 @@ boutonAjout.addEventListener("click", function () {
 var submitBouton = document.getElementById("submit");
 submitBouton.addEventListener("click", submitForm);
 function submitForm(event) {
-    event.preventDefault();
-  
-    const nom = document.getElementById("nom").value;
-    const prenom = document.getElementById("prenom").value;
-    const age = document.getElementById("age").value;
-    const note = document.getElementById("note").value;
-    alert("etudiant enregistrer avec sucess");
-    // window.location.href= "./"
-    let etudiants = JSON.parse(localStorage.getItem("etudiants")) || [];
-  
-    const nouvelEtudiant = {
-      nom: nom,
-      prenom: prenom,
-      age: age,
-      note: note,
-    };
-    // Ajouter le nouvel étudiant au tableau
-    etudiants.push(nouvelEtudiant);
-    // convertir en objet json
-    localStorage.setItem("etudiants", JSON.stringify(etudiants));
-  }
-  var sauvegarde = JSON.parse(localStorage.getItem('etudiants'));
-  // console.log(sauvegarde) je veux afficher les doées das le tableau
-  function modifierForm(etudiant){
-    var myModal = new bootstrap.Modal(
-        document.getElementById("Modifier"),
-        {
-          keyboard: false,
-        }
-      );
-      myModal.show();
-       // Copier les données de l'étudiant dans les champs du formulaire
-  document.getElementById("nom").value = etudiant.nom;
-  console.log(etudiant.nom)
-  document.getElementById("prenom").value = etudiant.prenom;
-  document.getElementById("age").value = etudiant.age;
-  document.getElementById("note").value = etudiant.note;
+  event.preventDefault();
 
-  // Écouteur pour le bouton de soumission du formulaire de modification
-//   var submitModifierButton = document.getElementById("submitModifier");
-//   submitModifierButton.addEventListener("click", function(event) {
-//     event.preventDefault();
-//     sauvegarderModification(etudiant);
-//     myModal.hide();
-//   });
-  }
-  
+  const id = document.getElementById("numero").value;
+  const nom = document.getElementById("nom").value;
+  const prenom = document.getElementById("prenom").value;
+  const age = document.getElementById("age").value;
+  const note = document.getElementById("note").value;
+  alert("etudiant enregistrer avec sucess");
+  // window.location.href= "./"
+  let etudiants = JSON.parse(localStorage.getItem("etudiants")) || [];
+
+  const nouvelEtudiant = {
+    id: id,
+    nom: nom,
+    prenom: prenom,
+    age: age,
+    note: note,
+  };
+  // Ajouter le nouvel étudiant au tableau
+  etudiants.push(nouvelEtudiant);
+  // convertir en objet json
+  localStorage.setItem("etudiants", JSON.stringify(etudiants));
+}
+var sauvegarde = JSON.parse(localStorage.getItem("etudiants"));
+// console.log(sauvegarde) je veux afficher les doées das le tableau
+function modifierForm(index) {
+  var myModal = new bootstrap.Modal(document.getElementById("Modifier"), {
+    keyboard: false,
+  });
+  myModal.show();
+  const etudiant = sauvegarde[index];
+
+  document.getElementById("M_id").value = index;
+  // document.getElementById("M_nom").value = etudiant.nom;
+  // document.getElementById("M_prenom").value = etudiant.prenom;
+  // document.getElementById("M_age").value = etudiant.age;
+  // document.getElementById("M_note").value = etudiant.note;
+
+}
+// Fonction pour supprimer un étudiant
+function supprimerEtudiant(index) {
+  sauvegarde.splice(index, 1); // Supprimer l'étudiant de la liste
+  localStorage.setItem("etudiants", JSON.stringify(sauvegarde)); // Mettre à jour le localStorage
+  giveTrPerPage(); // Mettre à jour l'affichage du tableau
+}
