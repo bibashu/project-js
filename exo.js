@@ -1,231 +1,254 @@
-// Déclaration globale de sauvegarde
-var sauvegarde = [];
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  doc,
+  setDoc,
+  getFirestore,
+  updateDoc,
+  collection,
+  deleteDoc,
+  getDocs,
+  getDoc,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Fonction pour charger les données des étudiants depuis localStorage
-function chargerEtudiantsDepuisLocalStorage() {
-  sauvegarde = JSON.parse(localStorage.getItem("etudiants")) || [];
-}
+// TODO: Replace the following with your app's Firebase project configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCjBdYzpw86_L58OfXLcUzV78aB6AOKEIo",
+  authDomain: "tache-validation-ab125.firebaseapp.com",
+  projectId: "tache-validation-ab125",
+  storageBucket: "tache-validation-ab125.appspot.com",
+  messagingSenderId: "430630979397",
+  appId: "1:430630979397:web:9929f287054b3d3bcde02c",
+};
 
-// Fonction pour calculer la moyenne des notes des étudiants
-function calculerMoyenne(awa) {
-  var somme = 0;
-  for (var i = 0; i < awa.length; i++) {
-    somme += awa[i].note;
-  }
-  console.log(awa.length);
-  return somme / awa.length;
-}
+try {
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
 
-// Fonction pour peupler le tableau avec les données des étudiants
-function populateTable() {
-  var tableBody = document.getElementById("etudiants-table");
-  tableBody.innerHTML = ""; // Effacer le contenu actuel du tableau
+  // Initialize Cloud Firestore and get a reference to the service
+  const db = getFirestore(app);
 
-  sauvegarde.forEach(function (etudiant) {
-    var row = document.createElement("tr");
+  // Function to populate the table
+  async function populateTable() {
+    const tableBody = document.getElementById("etudiants-table");
+    tableBody.innerHTML = ""; // Effacer le contenu actuel du tableau
 
-    var nomCell = document.createElement("td");
-    nomCell.textContent = etudiant.nom;
-    row.appendChild(nomCell);
+    const querySnapshot = await getDocs(collection(db, "etudiants"));
+    let count = 0;
+    let totalNotes = 0;
+    let meilleureNote = 0;
+    const rows = [];
 
-    var prenomCell = document.createElement("td");
-    prenomCell.textContent = etudiant.prenom;
-    row.appendChild(prenomCell);
+    querySnapshot.forEach((doc) => {
+      count++;
+      const note = doc.data().note;
+      totalNotes += note;
+      if (note > meilleureNote) {
+        meilleureNote = note;
+      }
 
-    var ageCell = document.createElement("td");
-    ageCell.textContent = etudiant.age;
-    row.appendChild(ageCell);
+      const row = document.createElement("tr");
 
-    var noteCell = document.createElement("td");
-    noteCell.textContent = etudiant.note;
-    row.appendChild(noteCell);
-    
+      const nomCell = document.createElement("td");
+      nomCell.textContent = doc.data().nom;
+      row.appendChild(nomCell);
 
-    // Ajouter la ligne au corps du tableau
-  });
-}
+      const prenomCell = document.createElement("td");
+      prenomCell.textContent = doc.data().prenom;
+      row.appendChild(prenomCell);
 
-// Fonction pour afficher les étudiants pour la page actuelle
-function displayPage(limit, page, index) {
-  var tableBody = document.getElementById("etudiants-table");
-  tableBody.innerHTML = ""; // Effacer le contenu actuel du tableau
+      const ageCell = document.createElement("td");
+      ageCell.textContent = doc.data().age;
+      row.appendChild(ageCell);
 
-  var start = (page - 1) * limit;
-  var end = start + limit;
-  for (var i = start; i < end && i < sauvegarde.length; i++) {
-    var row = document.createElement("tr");
+      const noteCell = document.createElement("td");
+      noteCell.textContent = doc.data().note + " /20";
+      row.appendChild(noteCell);
 
-    var nomCell = document.createElement("td");
-    nomCell.textContent = sauvegarde[i].nom;
-    row.appendChild(nomCell);
+      const boutonGroup = document.createElement("td");
+      boutonGroup.classList.add("btnGroup");
 
-    var prenomCell = document.createElement("td");
-    prenomCell.textContent = sauvegarde[i].prenom;
-    row.appendChild(prenomCell);
+      const bouton1 = document.createElement("button");
+      bouton1.classList.add("buttonModif");
+      bouton1.innerHTML = '<ion-icon name="pencil-outline"></ion-icon>';
+      bouton1.addEventListener("click", () => {
+        modifier(doc.id);
+      });
+      boutonGroup.appendChild(bouton1);
 
-    var ageCell = document.createElement("td");
-    ageCell.textContent = sauvegarde[i].age;
-    row.appendChild(ageCell);
+      const bouton2 = document.createElement("button");
+      bouton2.innerHTML = '<ion-icon name="trash-outline"></ion-icon>';
+      bouton2.classList.add("buttonModif2");
+      bouton2.addEventListener("click", () => {
+        supprimer(doc.id);
+        setTimeout(() => {
+          window.location.href = "./";
+        }, 1000);
+      });
+      boutonGroup.appendChild(bouton2);
 
-    var noteCell = document.createElement("td");
-    noteCell.textContent = sauvegarde[i].note;
-    row.appendChild(noteCell);
-    // creation de bouton
-    var actionbutoon = document.createElement("td");
-    var modifier = document.createElement("button");
-    modifier.classList.add("buttonModif");
-    modifier.innerHTML = '<ion-icon name="pencil-outline"></ion-icon>';
-    modifier.addEventListener("click", () => {
-      modifierForm(index)
-  });
-    actionbutoon.appendChild(modifier);
-    row.appendChild(actionbutoon);
-    // Bouton supprimer
-
-    var supprimer = document.createElement("button");
-    supprimer.innerHTML = '<ion-icon name="trash-outline"></ion-icon>';
-    supprimer.classList.add("buttonModif2");
-    supprimer.addEventListener('click', () => {
-      supprimerEtudiant(index);
-      
+      row.appendChild(boutonGroup);
+      rows.push(row);
     });
-    actionbutoon.appendChild(supprimer);
 
-    row.appendChild(actionbutoon);
+    const moyenne = count > 0 ? totalNotes / count : 0;
+    document.getElementById('nombre').innerHTML = count;
+    document.getElementById('moyenne').innerHTML = moyenne.toFixed(2) + " /20";
+    document.getElementById('meilleur').innerHTML = meilleureNote + " /20";
 
-    tableBody.appendChild(row);
-
-    tableBody.appendChild(row); // Ajouter la ligne au corps du tableau
+    displayTable(rows);
+    setupPagination(rows);
+    setupFiltering(rows);
   }
-}
 
-// Fonction pour générer les boutons de pagination
-function pageGenerator(getItem) {
-  var pagination = document.querySelector(".pagination");
-  pagination.innerHTML = "";
-  var numPages = Math.ceil(sauvegarde.length / getItem);
-  for (var i = 1; i <= numPages; i++) {
-    var pageButton = document.createElement("button");
-    pageButton.textContent = i;
-    pageButton.addEventListener(
-      "click",
-      (function (pageNumber) {
-        return function () {
-          currentPage = pageNumber;
-          displayPage(getItem, currentPage); // Utilisation de getItem au lieu de itemperpage
+  populateTable();
+
+  async function modifier(documentId) {
+    $("#Modifier").modal("show");
+    try {
+      const docRef = doc(db, "etudiants", documentId);
+      const docSnapshot = await getDoc(docRef);
+
+      if (docSnapshot.exists()) {
+        const data = docSnapshot.data();
+        const nom = document.getElementById("M_nom");
+        const prenom = document.getElementById("M_prenom");
+        const age = document.getElementById("M_age");
+        const note = document.getElementById("M_note");
+
+        nom.value = data.nom || " ";
+        prenom.value = data.prenom || "";
+        age.value = data.age || "";
+        note.value = data.note || "";
+
+        console.log("Données chargées dans le formulaire:", data);
+      } else {
+        console.log("Aucun document trouvé avec l'ID:", documentId);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des données:", error);
+    }
+    const modifierEtudiant = document.getElementById("modifier");
+    modifierEtudiant.addEventListener("click", modifierEtudiantFunction);
+    function modifierEtudiantFunction(event) {
+      event.preventDefault();
+      modifEtudiant(documentId);
+
+      setTimeout(() => {
+        $("#Modifier").modal("hide");
+        window.location.href = "./";
+      }, 1000);
+    }
+  }
+
+  async function modifEtudiant(documentId) {
+    const nom = document.getElementById("M_nom").value;
+    const prenom = document.getElementById("M_prenom").value;
+    const age = document.getElementById("M_age").value;
+    const note = document.getElementById("M_note").value;
+
+    const tontineRef = doc(db, "etudiants", documentId);
+    try {
+      await updateDoc(tontineRef, {
+        nom: nom,
+        prenom: prenom,
+        age: parseInt(age),
+        note: parseInt(note),
+      });
+      console.log("Document mis à jour avec succès !");
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du document :", error);
+    }
+  }
+
+  async function supprimer(documentId) {
+    const choix = window.confirm("Voulez-vous supprimer ce document ?");
+    if (choix === true) {
+      await deleteDoc(doc(db, "etudiants", documentId));
+    }
+  }
+
+  function setupFiltering(rows) {
+    document.getElementById('filter-nom').addEventListener('keyup', () => filtrerEtudiantsParNom(rows));
+    document.getElementById("search").onkeyup = e => {
+      const text = e.target.value.toLowerCase();
+      rows.forEach(row => {
+        const matchText = row.querySelectorAll("td")[2].innerText.toLowerCase();
+        row.style.display = matchText.indexOf(text) > -1 ? "" : "none";
+      });
+    };
+  }
+
+  function filtrerEtudiantsParNom(rows) {
+    const input = document.getElementById("filter-nom").value.toUpperCase();
+    rows.forEach(row => {
+      const nomCell = row.getElementsByTagName("td")[0];
+      if (nomCell) {
+        const txtValue = nomCell.textContent || nomCell.innerText;
+        row.style.display = txtValue.toUpperCase().indexOf(input) > -1 ? "" : "none";
+      }
+    });
+  }
+
+  function displayTable(rows) {
+    const tableBody = document.getElementById("etudiants-table");
+    tableBody.innerHTML = "";
+    rows.forEach(row => tableBody.appendChild(row));
+  }
+
+  function setupPagination(rows) {
+    const tbody = document.querySelector("tbody");
+    const pageUl = document.querySelector(".pagination");
+    const itemShow = document.querySelector("#itemperpage");
+    let itemPerPage = 8;
+
+    itemShow.onchange = () => {
+      itemPerPage = Number(itemShow.value);
+      displayPage(1, itemPerPage, rows);
+      pageGenerator(itemPerPage, rows);
+      getPageElement(itemPerPage, rows);
+    };
+
+    displayPage(1, itemPerPage, rows);
+    pageGenerator(itemPerPage, rows);
+
+    function displayPage(page, limit, rows) {
+      tbody.innerHTML = "";
+      const start = (page - 1) * limit;
+      const end = start + limit;
+      for (let i = start; i < end && i < rows.length; i++) {
+        tbody.appendChild(rows[i]);
+      }
+    }
+
+    function pageGenerator(limit, rows) {
+      pageUl.innerHTML = "";
+      const numOfPages = Math.ceil(rows.length / limit);
+      for (let i = 1; i <= numOfPages; i++) {
+        const li = document.createElement('li');
+        li.className = 'list';
+        const a = document.createElement('a');
+        a.href = '#';
+        a.innerText = i;
+        a.setAttribute('data-page', i);
+        li.appendChild(a);
+        pageUl.appendChild(li);
+      }
+      pageRunner(pageUl.querySelectorAll("a"), limit, rows);
+    }
+
+    function pageRunner(pageLinks, limit, rows) {
+      pageLinks.forEach(link => {
+        link.onclick = e => {
+          const page = e.target.getAttribute('data-page');
+          displayPage(Number(page), limit, rows);
         };
-      })(i)
-    );
-    pagination.appendChild(pageButton);
+      });
+    }
+
+    function getPageElement(limit, rows) {
+      pageGenerator(limit, rows);
+    }
   }
-}
-
-// Fonction pour gérer le changement d'éléments par page
-function giveTrPerPage() {
-  var itemperpage = Number(document.getElementById("itemperpage").value);
-  currentPage = 1; // Réinitialiser à la première page
-  displayPage(itemperpage, currentPage);
-  pageGenerator(itemperpage);
-}
-
-// Fonction pour soumettre le formulaire d'ajout d'étudiant
-function submitForm(event) {
-  event.preventDefault();
-
-  const id = document.getElementById("numero").value;
-  console.log(id);
-  const nom = document.getElementById("nom").value;
-  const prenom = document.getElementById("prenom").value;
-  const age = document.getElementById("age").value;
-  const note = document.getElementById("note").value;
-
-  alert("Étudiant enregistré avec succès");
-  window.location.href = "/"
-  // Créer un nouvel étudiant
-  const nouvelEtudiant = {
-    id: id,
-    nom: nom,
-    prenom: prenom,
-    age: age,
-    note: note,
-  };
-
-  // Ajouter le nouvel étudiant au tableau des étudiants
-  sauvegarde.push(nouvelEtudiant);
-
-  // Sauvegarder de nouveau dans localStorage
-  localStorage.setItem("etudiants", JSON.stringify(sauvegarde));
-
-  // Mettre à jour l'affichage du tableau avec les données ajoutées
-  giveTrPerPage();
-}
-
-// Chargement initial des étudiants depuis localStorage
-chargerEtudiantsDepuisLocalStorage();
-
-// Affichage initial du tableau
-giveTrPerPage();
-
-// Affichage de la moyenne générale (si nécessaire)
-var moyenneGenerale = calculerMoyenne(sauvegarde);
-document.getElementById("moyenne-generale").textContent =
-  "Moyenne générale : " + moyenneGenerale.toFixed(2);
-
-// Écouter le clic sur le bouton "Ajouter" pour afficher le modal (Bootstrap 5)
-var boutonAjout = document.getElementById("Ajout");
-boutonAjout.addEventListener("click", function () {
-  var myModal = new bootstrap.Modal(document.getElementById("AjoutModal"), {
-    keyboard: false,
-  });
-  myModal.show();
-});
-
-// Écouter la soumission du formulaire d'ajout d'étudiant
-var submitBouton = document.getElementById("submit");
-submitBouton.addEventListener("click", submitForm);
-function submitForm(event) {
-  event.preventDefault();
-
-  const id = document.getElementById("numero").value;
-  const nom = document.getElementById("nom").value;
-  const prenom = document.getElementById("prenom").value;
-  const age = document.getElementById("age").value;
-  const note = document.getElementById("note").value;
-  alert("etudiant enregistrer avec sucess");
-  // window.location.href= "./"
-  let etudiants = JSON.parse(localStorage.getItem("etudiants")) || [];
-
-  const nouvelEtudiant = {
-    id: id,
-    nom: nom,
-    prenom: prenom,
-    age: age,
-    note: note,
-  };
-  // Ajouter le nouvel étudiant au tableau
-  etudiants.push(nouvelEtudiant);
-  // convertir en objet json
-  localStorage.setItem("etudiants", JSON.stringify(etudiants));
-}
-var sauvegarde = JSON.parse(localStorage.getItem("etudiants"));
-// console.log(sauvegarde) je veux afficher les doées das le tableau
-function modifierForm(index) {
-  var myModal = new bootstrap.Modal(document.getElementById("Modifier"), {
-    keyboard: false,
-  });
-  myModal.show();
-  const etudiant = sauvegarde[index];
-
-  document.getElementById("M_id").value = index;
-  // document.getElementById("M_nom").value = etudiant.nom;
-  // document.getElementById("M_prenom").value = etudiant.prenom;
-  // document.getElementById("M_age").value = etudiant.age;
-  // document.getElementById("M_note").value = etudiant.note;
-
-}
-// Fonction pour supprimer un étudiant
-function supprimerEtudiant(index) {
-  sauvegarde.splice(index, 1); // Supprimer l'étudiant de la liste
-  localStorage.setItem("etudiants", JSON.stringify(sauvegarde)); // Mettre à jour le localStorage
-  giveTrPerPage(); // Mettre à jour l'affichage du tableau
+} catch (error) {
+  console.error("Error initializing Firestore:", error);
 }

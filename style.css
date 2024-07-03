@@ -1,4 +1,20 @@
 /* The Modal (background) */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+*{
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  /* font-weight: <weight>; */
+  font-style: normal;
+}
+h2{
+  font-family: "Dancing Script", cursive;
+  /* font-optical-sizing: auto; */
+  font-weight: 600;
+
+ 
+}
 .modal {
     display: none; /* Hidden by default */
     position: fixed; /* Stay in place */
@@ -37,15 +53,17 @@
   }
   .buttonModif{
     background-color: white;
-    border: none;
+    border: 1px solid green;
     color: green;
     margin-right: 5px;
     font-size: 24px;
 
+
   }
   .buttonModif2{
     background-color: white;
-    border: none;
+    border: 1px solid red;
+
     color: red;
     margin-right: 5px;
     font-size: 24px;
@@ -58,3 +76,45 @@
     outline: none;
     border: none;
   }
+  .pagination{
+   
+  }
+  .card-text{
+    font-size: 25px;
+  }
+  .pagination{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .pagination li{
+    list-style: none;
+    padding: 2px;
+    margin: 10px;
+    flex-shrink: 0;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid #999;
+    color: #999;
+  }
+  .pagination li.active{
+    background: #32d6aa;
+    color: white;
+    border-color: #32d6aa;
+
+  }
+  .pagination li a{
+    text-decoration: none;
+    padding: 3px 8px;
+    color: inherit;
+    display: block;
+    font-family: sans-serif;
+    font-size: 13px;
+  }
+  i.fa-edit{color: lime;}
+i.fa-trash{color: red;}
+.btnGroup{
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}

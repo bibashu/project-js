@@ -9,114 +9,96 @@
 </head>
 <body>
     <div class="container mt-5">
-        <h2 class="mb-4">Liste des Étudiants</h2>
-        <div class="pag d-flex justify-content-between">
-          <select class="form-select" id="itemperpage" onchange="giveTrPerPage()" aria-label="Default select example">
-            <h5>Show</h5>
-
-            <option value="2">2</option>
-            <option value="5">5</option>
-
-          </select>
-
-        </div>
-        <div class="mb-3">
-           
-            <input type="text" id="filter-nom"   onkeyup="filtrerEtudiantsParNom()" class="form-control" placeholder="Entrez une note">
-            
+      <h2 class="mb-5 text-center ">Gestion des Etudiants</h2>
+      <div class="d-flex flex-column flex-md-row justify-content-center align-items-center">
+        <div class="col-md-4 col-sm-12 col-12">
+          <div class="card text-bg-primary mb-3 w-100" ">
+            <div class="card-body text-center">
+              <h5 class="card-title">Nombre d'étudiants</h5>
+              <p class="card-text fs-1" id="nombre"></p>
             </div>
-          <button data-bs-toggle="modal" data-bs-target="#Ajout" type="button" class="btn btn-success lb-5 float-right" id="Ajout" >Ajouter</button>        <!-- input search -->
-
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Âge</th>
-                    <th>Note</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody id="etudiants-table"></tbody>
-        </table>
-        <h3 id="moyenne-generale"></h3>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-12 col-12">
+          <div class="card  w-100 text-bg-primary mb-3" >
+            <div class="card-body text-center">
+              <h5 class="card-title">Moyenne Generale:</h5>
+              <p class="card-text" id="moyenne"></p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-12 col-12">
+          <div class="card text-bg-primary mb-3" >
+            <div class="card-body text-center">
+              <h5 class="card-title">Meilleur Note:</h5>
+              <p class="card-text" id="meilleur"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h2 class="mb-4 text-center ">Liste des Étudiants</h2>
+      <div class="pag d-flex justify-content-between">
+        <select class="form-select mb-2" id="itemperpage" aria-label="Default select example">
+          <option value="4">4</option>
+          <option value="6">6</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <input type="text" id="filter-nom" class="form-control" placeholder="Recherche">
+      </div>
+      <button
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#Ajout"
+        class="float-right btn btn-success border-0 rounded-pill p-2 text-white mb-4">
+        Ajouter
+      </button>
+      <table class="table table-bordered text-center table-responsive">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Âge</th>
+            <th>Note</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="etudiants-table"></tbody>
+      </table>
     </div>
-    <nav aria-label="Page navigation example">
-        <ul class="pagination justify-content-center">
-          <li class="page-item disabled">
-            <a class="page-link">Previous</a>
-          </li>
-          <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item">
-            <a class="page-link" href="#">Next</a>
-          </li>
-        </ul>
-      </nav>
+    <div class="bottom-field">
+      <ul class="pagination">
+        <li class="prev"><a href="#" id="prev">&#139;</a></li>
+        <li class="next"><a href="#" id="next">&#155;</a></li>
+      </ul>
+    </div>
 
-      <div id="bine"></div>
-      <!-- modal -->
-     
-
-      <div
-      class="modal fade"
-      id="AjoutModal"
-      tabindex="-1"
-      aria-labelledby="exampleModalLabel"
-      aria-hidden="true"
-    >
+    <!-- Ajout modal -->
+    <div class="modal fade" id="Ajout" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">
-              Ajout Etudiants
-            </h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
+            <h1 class="modal-title fs-5" id="exampleModalLabel">Ajout Étudiants</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form >
+            <form>
               <div class="mb-3">
-                <label for="recipient-name" class="col-form-label"
-                  >Id : </label
-                >
-                <input type="number" class="form-control"  id="numero" />
+                <label for="recipient-name" class="col-form-label">Nom:</label>
+                <input type="text" class="form-control" id="nom">
               </div>
               <div class="mb-3">
-                <label for="recipient-name" class="col-form-label"
-                  >Nom : </label
-                >
-                <input type="text" class="form-control"  id="nom" />
+                <label for="message-text" class="col-form-label">Prénom:</label>
+                <input type="text" class="form-control" id="prenom">
               </div>
               <div class="mb-3">
-                <label for="message-text" class="col-form-label"
-                  >Prénom: </label
-                >
-                <input
-                  type="text"
-                  class="form-control"
-                  id="prenom"
-                />
+                <label for="message-text" class="col-form-label">Âge:</label>
+                <input type="number" class="form-control" id="age">
               </div>
               <div class="mb-3">
-                <label for="message-text" class="col-form-label"
-                  >Age:</label
-                >
-                <input type="number" class="form-control" id="age" />
+                <label for="message-text" class="col-form-label">Note:</label>
+                <input type="number" class="form-control" id="note">
               </div>
-              <div class="mb-3">
-                <label for="message-text" class="col-form-label"
-                  >Note:</label
-                >
-                <input type="number" class="form-control" id="note" />
-              </div>
-           
-
               <button type="submit" id="submit" class="btn btn-success">Ajouter</button>
               <button type="reset" class="btn btn-danger">Effacer</button>
             </form>
@@ -124,92 +106,49 @@
         </div>
       </div>
     </div>
+
     <!-- Modification modal -->
-
-    <div
-    class="modal fade"
-    id="Modifier"
-    tabindex="-1"
-    aria-labelledby="exampleModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2 class="modal-title fs-5" id="exampleModalLabel">
-            Modifier Etudiants
-          </h2>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <form >
-            <div class="mb-3">
-              <label for="recipient-name" class="col-form-label"
-                >ID : </label
-              >
-              <input type="number" class="form-control"  id="M_id" />
-            </div>
-            <div class="mb-3">
-              <label for="recipient-name" class="col-form-label"
-                >Nom : </label
-              >
-              <input type="text" class="form-control"  id="M_nom" />
-            </div>
-            <div class="mb-3">
-              <label for="message-text" class="col-form-label"
-                >Prénom: </label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="M_prenom"
-              />
-            </div>
-            <div class="mb-3">
-              <label for="message-text" class="col-form-label"
-                >Age:</label
-              >
-              <input type="number" class="form-control" id="M_age" />
-            </div>
-            <div class="mb-3">
-              <label for="message-text" class="col-form-label"
-                >Note:</label
-              >
-              <input type="number" class="form-control" id="M_note" />
-            </div>
-         
-
-            <button type="submitModification" id="submit" class="btn btn-success">Modiifier</button>
-            <button type="reset" class="btn btn-danger">Effacer</button>
-          </form>
+    <div class="modal fade" id="Modifier" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 class="modal-title fs-5" id="exampleModalLabel">Modifier Étudiants</h2>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="mb-3">
+                <label for="recipient-name" class="col-form-label">Nom:</label>
+                <input type="text" class="form-control" id="M_nom">
+              </div>
+              <div class="mb-3">
+                <label for="message-text" class="col-form-label">Prénom:</label>
+                <input type="text" class="form-control" id="M_prenom">
+              </div>
+              <div class="mb-3">
+                <label for="message-text" class="col-form-label">Âge:</label>
+                <input type="number" class="form-control" id="M_age">
+              </div>
+              <div class="mb-3">
+                <label for="message-text" class="col-form-label">Note:</label>
+                <input type="number" class="form-control" id="M_note">
+              </div>
+              <button type="submit" id="modifier" class="btn btn-success">Modifier</button>
+              <button type="reset" class="btn btn-danger">Effacer</button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-
- 
-
-</div>
-
-
-
-
-
-<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-<script
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script
 type="module"
 src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
 ></script>
-   <!-- Inclusion de votre fichier JS -->
-    <script src="exo.js"></script>
+    <script type="module" src="exo.js"></script>
+    <script type="module" src="add.js"></script>
 </body>
 </html>
